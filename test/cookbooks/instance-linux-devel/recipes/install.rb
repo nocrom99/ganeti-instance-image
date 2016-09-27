@@ -1,4 +1,4 @@
-execute 'install instance-image' do
+execute 'install instance-linux' do
   cwd '/vagrant'
   command <<-EOF
   ./autogen.sh

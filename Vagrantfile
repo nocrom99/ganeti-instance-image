@@ -8,7 +8,7 @@ Vagrant.require_version '>= 1.7.0'
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   %w(centos-6.6 debian-7.7 ubuntu-12.04 ubuntu-14.04).each do |os|
     config.vm.define os do |node|
-      config.vm.hostname = "instance-image"
+      config.vm.hostname = "instance-linux"
       config.omnibus.chef_version = 'latest' if
         Vagrant.has_plugin?('vagrant-omnibus')
       config.berkshelf.enabled = true if
@@ -33,10 +33,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         }
         chef.run_list = %w(
           recipe[apt]
-          recipe[instance-image-devel]
+          recipe[instance-linux-devel]
           recipe[ganeti]
-          recipe[instance-image-devel::install]
-          recipe[instance-image-devel::variants]
+          recipe[instance-linux-devel::install]
+          recipe[instance-linux-devel::variants]
         )
       end
     end

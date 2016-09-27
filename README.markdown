@@ -1,4 +1,4 @@
-# ganeti-instance-image
+# ganeti-instance-linux
 
 This is a guest OS definition for [Ganeti](http://code.google.com/p/ganeti). It
 will install a Linux-based image using either a tarball, filesystem dump, or a
@@ -40,9 +40,9 @@ which ganeti will look for OS definitions.
 The kind of instance created can be customized via a settings file. This file
 may or may not be installed by default, as the instance creation will work
 without it. The creation scripts will look for it in
-`$sysconfdir/default/ganeti-instance-image`, so if you have run configure with
+`$sysconfdir/default/ganeti-instance-linux`, so if you have run configure with
 the parameter `--sysconfdir=/etc`, the final filename will be
-`/etc/default/ganeti-instance-image`.
+`/etc/default/ganeti-instance-linux`.
 
 The following settings will be examined in this file:
 
@@ -65,7 +65,7 @@ The following settings will be examined in this file:
                 dump, or an image created by qemu-img. Accepts either 'tarball',
                 'dump', or 'qemu'.  (default: dump).
 * `IMAGE_DIR`:  Override default location for images.
-                (default: `$localstatedir/cache/ganeti-instance-image`)
+                (default: `$localstatedir/cache/ganeti-instance-linux`)
 * `NOMOUNT`:    Do not try to mount volume (typically used if it is not a linux
                 partition).  Accepts either 'yes' or 'no'. This option is useful
                 for installing Windows images for example. (default: no)
@@ -75,7 +75,7 @@ The following settings will be examined in this file:
 * `ARCH`:       Define the architecture of the image to use. Accepts either 'x86'
                 or 'x86_64'.
 * `CUSTOMIZE_DIR`: A directory containing customization script for the instance.
-                (by default $sysconfdir/ganeti/instance-image/hooks) See
+                (by default $sysconfdir/ganeti/instance-linux/hooks) See
                 "Customization of the instance" below.
 * `IMAGE_DEBUG`: Enable verbose output for instance scripts. Enable by either
                 using "1" or "yes"  (default: no )
@@ -226,7 +226,7 @@ release.
 ## Customization of the instance
 
 If run-parts is in the os create script, and the `CUSTOMIZE_DIR` (by default
-$sysconfdir/ganeti/instance-image/hooks, /etc/ganeti/instance-image/hooks if you
+$sysconfdir/ganeti/instance-linux/hooks, /etc/ganeti/instance-linux/hooks if you
 configured the os with --sysconfdir=/etc) directory exists any executable whose
 name matches the run-parts execution rules (quoting run-parts(8): the names must
 consist entirely of upper and lower case letters, digits, underscores, and
@@ -286,7 +286,7 @@ several files in a manner described below.
 
 Subnets:
 
-Create a file in `/etc/ganeti/instance-image/networks/subnets` that has a useful
+Create a file in `/etc/ganeti/instance-linux/networks/subnets` that has a useful
 name such as `vlan42`. This file will describe subnet routing information such
 as the netmask, gateway, and dns. The following is an example:
 
@@ -298,7 +298,7 @@ as the netmask, gateway, and dns. The following is an example:
 
 Instance:
 
-Create a file in `/etc/ganeti/instance-image/networks/instances` and name it the
+Create a file in `/etc/ganeti/instance-linux/networks/instances` and name it the
 FQDN of the instance. The file will describe the IP address for the instance and
 which subnet it resides on. For example, we could create a file named
 `myinstance.osuosl.org` and have the following in it:
@@ -317,7 +317,7 @@ to fix this manually at some point in the future.
 
 When enabled it will copy a directory of files recursively into the instance.
 This is quite useful for site specific configurations such as resolv.conf.
-Create a directory in `/etc/ganeit/instance-image/overlays/` and copy files as
+Create a directory in `/etc/ganeit/instance-linux/overlays/` and copy files as
 needed into it. Treat the directory as the root of the filesystem. Set `OVERLAY`
 for the variant as the name of the directory. This directory needs to exist on
 all nodes in order to work.

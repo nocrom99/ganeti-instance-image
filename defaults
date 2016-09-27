@@ -1,4 +1,4 @@
-# ganeti-instance-image defaults file
+# ganeti-instance-linux defaults file
 
 # CDINSTALL: Only setup disks for a cd based install
 # Just setup the disks so that you can boot a machine up on a cd to create a
@@ -37,7 +37,7 @@
 # IMAGE_TYPE="dump"
 
 # IMAGE_DIR: directory location for disk images
-# ( default is @localstatedir@/cache/ganeti-instance-image )
+# ( default is @localstatedir@/cache/ganeti-instance-linux )
 # IMAGE_DIR=""
 
 # NOMOUNT: Do not try to mount volume (if it is not a linux partition). Accepts
@@ -60,8 +60,8 @@
 
 # CUSTOMIZE_DIR: a directory containing scripts to customize the installation.
 # The scripts are executed using run-parts
-# By default /etc/ganeti/instance-image/hooks
-# CUSTOMIZE_DIR="/etc/ganeti/instance-image/hooks"
+# By default /etc/ganeti/instance-linux/hooks
+# CUSTOMIZE_DIR="/etc/ganeti/instance-linux/hooks"
 
 # IMAGE_DEBUG: turn on debugging output for the scripts
 # IMAGE_DEBUG=0
@@ -73,7 +73,7 @@
 # IMAGE_URL=""
 
 # CACHE_DIR: directory where the downloaded images will be saved
-# ( default is @localstatedir@/cache/ganeti-instance-image )
+# ( default is @localstatedir@/cache/ganeti-instance-linux )
 # CACHE_DIR=""
 
 # IMAGE_VERIFY: Check the image signature

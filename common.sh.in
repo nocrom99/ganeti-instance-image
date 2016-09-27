@@ -396,7 +396,7 @@ setup_console() {
                 ${target}/etc/inittab
             ;;
         *)
-            echo "No support for your OS in instance-image, skipping..."
+            echo "No support for your OS in instance-linux, skipping..."
             ;;
     esac
 }
@@ -413,7 +413,7 @@ cleanup() {
 
 trap cleanup EXIT
 
-DEFAULT_FILE="@defaultdir@/ganeti-instance-image"
+DEFAULT_FILE="@defaultdir@/ganeti-instance-linux"
 if [ -f "$DEFAULT_FILE" ]; then
     . "$DEFAULT_FILE"
 fi
@@ -436,15 +436,15 @@ fi
 : ${IMAGE_TYPE:="dump"}
 : ${NOMOUNT:="no"}
 : ${ARCH:=""}
-: ${CUSTOMIZE_DIR:="@sysconfdir@/ganeti/instance-image/hooks"}
-: ${VARIANTS_DIR:="@sysconfdir@/ganeti/instance-image/variants"}
-: ${NETWORKS_DIR:="@sysconfdir@/ganeti/instance-image/networks"}
-: ${OVERLAYS_DIR:="@sysconfdir@/ganeti/instance-image/overlays"}
+: ${CUSTOMIZE_DIR:="@sysconfdir@/ganeti/instance-linux/hooks"}
+: ${VARIANTS_DIR:="@sysconfdir@/ganeti/instance-linux/variants"}
+: ${NETWORKS_DIR:="@sysconfdir@/ganeti/instance-linux/networks"}
+: ${OVERLAYS_DIR:="@sysconfdir@/ganeti/instance-linux/overlays"}
 : ${EXPORT_DIR:="/tmp"}
-: ${IMAGE_DIR:="@localstatedir@/cache/ganeti-instance-image"}
+: ${IMAGE_DIR:="@localstatedir@/cache/ganeti-instance-linux"}
 : ${IMAGE_DEBUG:="no"}
 : ${FDISK:="sfdisk"}
-: ${CACHE_DIR:="@localstatedir@/cache/ganeti-instance-image"}
+: ${CACHE_DIR:="@localstatedir@/cache/ganeti-instance-linux"}
 : ${IMAGE_URL:=""}
 : ${IMAGE_VERIFY:="yes"}
 : ${IMAGE_CLEANUP:="no"}
@@ -492,7 +492,7 @@ if [ -n "$OS_VARIANT" ]; then
     . "$VARIANT_CONFIG"
   else
     if grep -qxF "$OS_VARIANT" variants.list; then
-      log_error "ERROR: instance-image configuration error"
+      log_error "ERROR: instance-linux configuration error"
       log_error "  Published variant $OS_VARIANT is missing its config file"
       log_error "  Please create $VARIANT_CONFIG or unpublish the variant"
       log_error "  (by removing $OS_VARIANT from variants.list)"

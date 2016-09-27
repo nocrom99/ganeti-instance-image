@@ -1,5 +1,5 @@
-%define         instancename    image
-Name:		ganeti-instance-image
+%define         instancename    linux
+Name:		ganeti-instance-linux
 Version:	0.7
 Release:	beta1%{?dist}
 Summary:	Guest OS definition for Ganeti based on Linux-based images

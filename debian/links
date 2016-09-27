@@ -1,1 +1,1 @@
-etc/ganeti/instance-image/variants.list usr/share/ganeti/os/image/variants.list
+etc/ganeti/instance-linux/variants.list usr/share/ganeti/os/linux/variants.list

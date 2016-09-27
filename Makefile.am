@@ -1,11 +1,11 @@
 osname=$(subst ganeti-instance-,,$(PACKAGE))
 
 osdir=$(OS_DIR)/$(osname)
-customdir=${sysconfdir}/ganeti/instance-image/hooks
-configdir=${sysconfdir}/ganeti/instance-image
-variantsdir=${sysconfdir}/ganeti/instance-image/variants
-networksdir=${sysconfdir}/ganeti/instance-image/networks
-overlaysdir=${sysconfdir}/ganeti/instance-image/overlays
+customdir=${sysconfdir}/ganeti/instance-linux/hooks
+configdir=${sysconfdir}/ganeti/instance-linux
+variantsdir=${sysconfdir}/ganeti/instance-linux/variants
+networksdir=${sysconfdir}/ganeti/instance-linux/networks
+overlaysdir=${sysconfdir}/ganeti/instance-linux/overlays
 toolsdir=$(OS_DIR)/$(osname)/tools
 
 dist_os_SCRIPTS = ${srcdir}/create ${srcdir}/import ${srcdir}/export \
@@ -22,7 +22,7 @@ dist_doc_DATA = ${srcdir}/COPYING ${srcdir}/NEWS ${srcdir}/README.markdown
 
 EXTRA_DIST = common.sh.in defaults tools/ganeti-image.in tools/make-image.in \
 	tools/make-dump.in tools/make-qemu-img.in tools/mount-disks.in \
-	tools/umount-disks.in ganeti-instance-image.spec debian
+	tools/umount-disks.in ganeti-instance-linux.spec debian
 
 edit = sed \
 	   -e 's|@sysconfdir[@]|$(sysconfdir)|g' \
@@ -70,12 +70,12 @@ install-exec-local:
 	@mkdir_p@ "$(DESTDIR)$(networksdir)/subnets"
 	@mkdir_p@ "$(DESTDIR)$(networksdir)/instances"
 	@mkdir_p@ "$(DESTDIR)$(overlaysdir)"
-	@mkdir_p@ "$(DESTDIR)$(localstatedir)/cache/ganeti-instance-image"
+	@mkdir_p@ "$(DESTDIR)$(localstatedir)/cache/ganeti-instance-linux"
 	touch "$(DESTDIR)$(variantsdir)/default.conf"
 	ln -fs $(DESTDIR)$(configdir)/variants.list $(DESTDIR)$(OS_DIR)/$(osname)/variants.list
 
 distclean-local:
-	rm -rf build-stamp debian/files debian/*.log debian/ganeti-instance-image/ \
-		debian/ganeti-instance-image.substvars
+	rm -rf build-stamp debian/files debian/*.log debian/ganeti-instance-linux/ \
+		debian/ganeti-instance-linux.substvars
 
 CLEANFILES = $(os_DATA) $(tools_SCRIPTS)
