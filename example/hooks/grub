@@ -20,7 +20,7 @@
 # This is an example script that configures, grub after installation. This
 # script assumes that grub has been installed onto the image already and a
 # working grub.conf exists. This is only enabled if using the tarball image
-# type. 
+# type.
 
 set -e
 
@@ -119,7 +119,6 @@ EOF
         echo "grub2 support is partially supported"
         echo "please run update-grub after the instance is online"
 
-        grub_setup="$(chroot ${TARGET} which grub-setup)"
         # check to see if grub is using UUID's and replace if so
         if [ -n "$(grep 'root=UUID' ${boot_dir}/grub.cfg)" ] ; then
             root_uuid="$($VOL_ID $ROOT_DEV)"
@@ -132,37 +131,41 @@ EOF
                 ${TARGET}/etc/default/grub
         fi
         # show the menu countdown in case we want to boot to a different kernel
-        sed -ie 's/.*GRUB_HIDDEN_TIMEOUT=.*/GRUB_HIDDEN_TIMEOUT=5/' ${TARGET}/etc/default/grub
-        sed -ie 's/.*GRUB_HIDDEN_TIMEOUT_QUIET=.*/GRUB_HIDDEN_TIMEOUT_QUIET=false/' ${TARGET}/etc/default/grub
+# #         sed -ie 's/.*GRUB_HIDDEN_TIMEOUT=.*/GRUB_HIDDEN_TIMEOUT=5/' ${TARGET}/etc/default/grub
+# #         sed -ie 's/.*GRUB_HIDDEN_TIMEOUT_QUIET=.*/GRUB_HIDDEN_TIMEOUT_QUIET=false/' ${TARGET}/etc/default/grub
         # install grub2 MBR
-        chroot ${TARGET} ${grub_setup} --force --device-map=/boot/grub/device.map \
-            --directory=/boot/grub --root-device="(hd0,1)" "(hd0)" > /dev/null
+        grub_install="$(chroot ${TARGET} which grub-install)"
+        chroot ${TARGET} ${grub_install} /dev/$disk > /dev/null
+# #         grub_setup="$(chroot ${TARGET} which grub-setup)"
+# #         chroot ${TARGET} ${grub_setup} --force --device-map=/boot/grub/device.map \
+# #             --directory=/boot/grub --root-device="(hd0,1)" "(hd0)" > /dev/null
+
     fi
 fi
 
-# setup serial console
-if [ "${INSTANCE_HV_serial_console}" = "True" ] ; then
-    if [ ! -e ${TARGET}/dev/${disk} ] ; then
-        setup_disk_devs
-    fi
-    if [ -e "${boot_dir}/menu.lst" ] ; then
-        # grub 0.x
-        sed --follow-symlinks -ie 's/^default.*/default 0\n\nserial --unit=0\nterminal --timeout=3 console serial/' \
-            ${boot_dir}/menu.lst
-        sed --follow-symlinks -ie 's/\(.*kernel.*\)/\1 console=ttyS0,115200n8/g' \
-            ${boot_dir}/menu.lst
-    elif [ -e "${boot_dir}/grub.cfg" -a -e "${TARGET}/etc/default/grub" ] ; then
-        # grub 2.x
-        add_devicemap
-        sed -ie 's/.*GRUB_TERMINAL.*/GRUB_TERMINAL=serial/' ${TARGET}/etc/default/grub
-        sed -ie 's/.*GRUB_CMDLINE_LINUX=\"\(.*\)\"/GRUB_CMDLINE_LINUX=\"\1 console=ttyS0,115200n8\"/' \
-            ${TARGET}/etc/default/grub
-        echo "GRUB_SERIAL_COMMAND=\"serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1\"" \
-            >> ${TARGET}/etc/default/grub
-    else
-        echo "No grub bootloader found, skipping..."
-    fi
-fi
+# # # setup serial console
+# # if [ "${INSTANCE_HV_serial_console}" = "True" ] ; then
+# #     if [ ! -e ${TARGET}/dev/${disk} ] ; then
+# #         setup_disk_devs
+# #     fi
+# #     if [ -e "${boot_dir}/menu.lst" ] ; then
+# #         # grub 0.x
+# #         sed --follow-symlinks -ie 's/^default.*/default 0\n\nserial --unit=0\nterminal --timeout=3 console serial/' \
+# #             ${boot_dir}/menu.lst
+# #         sed --follow-symlinks -ie 's/\(.*kernel.*\)/\1 console=ttyS0,115200n8/g' \
+# #             ${boot_dir}/menu.lst
+# #     elif [ -e "${boot_dir}/grub.cfg" -a -e "${TARGET}/etc/default/grub" ] ; then
+# #         # grub 2.x
+# #         add_devicemap
+# #         sed -ie 's/.*GRUB_TERMINAL.*/GRUB_TERMINAL=serial/' ${TARGET}/etc/default/grub
+# #         sed -ie 's/.*GRUB_CMDLINE_LINUX=\"\(.*\)\"/GRUB_CMDLINE_LINUX=\"\1 console=ttyS0,115200n8\"/' \
+# #             ${TARGET}/etc/default/grub
+# #         echo "GRUB_SERIAL_COMMAND=\"serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1\"" \
+# #             >> ${TARGET}/etc/default/grub
+# #     else
+# #         echo "No grub bootloader found, skipping..."
+# #     fi
+# # fi
 
 # execute cleanups
 cleanup

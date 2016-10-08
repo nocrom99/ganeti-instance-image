@@ -49,6 +49,19 @@ if [ -f "${NETWORKS_DIR}/instances/${FQDN}" ] ; then
         echo "No subnet file for subnet ${SUBNET}!"
         exit 1
     fi
+else
+    # check for DNS and then guess subnet
+    if host ${FQDN} > /dev/null; then
+        ADDRESS="$(host ${FQDN} | cut -d ' ' -f 4)"
+        SUBNET="$(echo ${ADDRESS} | cut -d . -f 1-3)"
+        STATIC="yes"
+        if [ -f "${NETWORKS_DIR}/subnets/${SUBNET}" ] ; then
+            source ${NETWORKS_DIR}/subnets/${SUBNET}
+        else
+            echo "No subnet file for subnet ${SUBNET}! (guessed based on host lookup ${ADDRESS})"
+            exit 1
+        fi
+    fi
 fi
 
 resolvconf() {
@@ -99,19 +112,27 @@ iface eth0 inet static
     netmask ${NETMASK}
     gateway ${GATEWAY}
 EOF
-        if [ -n "${DNS_SERVERS}" ] && [ -n "${DNS_SEARCH}" ] && [ -n "${DNS_DOMAIN}" ]; then
+        if [ -n "${DNS_SERVERS}" ]; then
             cat >> ${TARGET}/etc/network/interfaces << EOF
     dns-nameservers ${DNS_SERVERS}
-    dns-domain ${DNS_DOMAIN}
-    dns-search ${DNS_SEARCH}
-
 EOF
         fi
-    fi
-
-    if [ -n "${FQDN}" ] ; then
-        echo "${SHORT_NAME}" > ${TARGET}/etc/hostname
-    fi
+        if [ -n "${DNS_SEARCH}" ]; then
+            cat >> ${TARGET}/etc/network/interfaces << EOF
+    dns-domain ${DNS_DOMAIN}
+EOF
+        fi
+        if [ -n "${DNS_DOMAIN}" ]; then
+            cat >> ${TARGET}/etc/network/interfaces << EOF
+    dns-search ${DNS_SEARCH}
+EOF
+        fi
+        if [ -n "${FQDN}" ] ; then
+            echo "${SHORT_NAME}" > ${TARGET}/etc/hostname
+            echo -e "127.0.0.1\tlocalhost" > ${TARGET}/etc/hosts
+            echo -e "${ADDRESS}\t${FQDN}\t${SHORT_NAME}" >> ${TARGET}/etc/hosts
+        fi
+  fi
 }
 
 redhat_setup() {
@@ -211,6 +232,5 @@ if [ "${NIC_COUNT}" -gt 0 -a -n "${OS_TYPE}" ] ; then
 else
     log_error "Unsupported OS_TYPE"
 fi
-
 
 exit 0

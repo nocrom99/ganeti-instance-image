@@ -49,17 +49,17 @@ The following settings will be examined in this file:
 * `CDINSTALL`:  If 'yes' only setup disks for a cd based install or manual
                 installation via other means. It will not deploy any images or
                 create any partitions. (default: no)
-* `SWAP`:       Create a swap partition (tarball only) (default: yes)
+* `SWAP`:       Create a swap partition (tarball only) (default: no)
 * `SWAP_SIZE`:  Manually set the default swap partition size in MB (default: size
                 of instance memory)
 * `FILESYSTEM`: Set which filesystem to format the disks as. Currently only
-                supports ext3 or ext4. (default: ext3)
+                supports ext3 or ext4. (default: ext4)
 * `FDISK`:      Select either "parted" or "sfdisk" as the fdisk program to use
-                when creating partitions. (default: sfdisk)
+                when creating partitions. (default: parted)
 * `KERNEL_ARGS`: Add additional kernel boot parameters to an instance. This
                 currently only works on booting a kernel from inside.
 * `IMAGE_NAME`: Name for the image to use. Generally they will have names similar
-                to: centos-5.4, debian-5.0, etc. The naming is free form
+                to: ubuntu-16.04 centos-7, etc. The naming is free form
                 depending on what you name the file itself.
 * `IMAGE_TYPE`: Create instance by either using a gzipped tarball, file system
                 dump, or an image created by qemu-img. Accepts either 'tarball',
@@ -73,7 +73,7 @@ The following settings will be examined in this file:
                 installation. This is useful for situations where you want to
                 copy instance specific configs such as resolv.conf.
 * `ARCH`:       Define the architecture of the image to use. Accepts either 'x86'
-                or 'x86_64'.
+                or 'x86_64'. (default: x86_64)
 * `CUSTOMIZE_DIR`: A directory containing customization script for the instance.
                 (by default $sysconfdir/ganeti/instance-linux/hooks) See
                 "Customization of the instance" below.
@@ -149,13 +149,10 @@ include a boot partition).
 
 Create a base image for an instance just like its described in Qemu Images. Make
 sure the instance is shutdown and then issue the following commands (assuming
-the activated disk is drbd1)::
+the activated disk is drbd1 with now swap partition)::
 
-    dump -0 -q -z9 -f ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}-boot.dump \
+    dump -0 -q -z9 -f ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}.dump \
       /dev/mapper/drbdq-1
-
-    dump -0 -q -z9 -f ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}-root.dump \
-      /dev/mapper/drbdq-3
 
 ### Partition Layout
 
@@ -163,18 +160,6 @@ Currently the partition layout is locked into a specific way in order to make it
 work more elegantly with ganeti. We might change this to be more flexible in the
 future, however you *must* use the following layout otherwise ganeti will not
 install the VM correctly. Currently the following partition layout is assumed:
-
-    With swap:
-    /dev/$disk1    /boot
-    /dev/$disk2    swap
-    /dev/$disk3    /
-
-    Without swap:
-    /dev/$disk1    /boot
-    /dev/$disk2    /
-
-NOTE: If you have `kernel_path` set, /boot will not be created and all partition
-numbers will go up by one. For example:
 
     With swap:
     /dev/$disk1    swap
@@ -188,7 +173,7 @@ numbers will go up by one. For example:
 The naming convention that is used is the following:
 
 * tarball:    `$IMAGE_NAME-$ARCH.tar.gz`
-* dump:       `$IMAGE_NAME-$ARCH-boot.dump` `$IMAGE_NAME-$ARCH-root.dump`
+* dump:       `$IMAGE_NAME-$ARCH.dump`
 * qemu-img:   `$IMAGE_NAME-$ARCH.img`
 
 ### Useful Scripts
@@ -238,7 +223,6 @@ passes to the OS scripts:
     BLOCKDEV:   ganeti block device
     ROOT_DEV:   device in which the root (/) filesystem resides (the one mounted
                 in TARGET)
-    BOOT_DEV:   device in which the boot (/boot) filesystem resides
     IMAGE_TYPE: type of image being used (tarball, qemu, dump)
 
 The scripts in `CUSTOMIZE_DIR` can exit with an error code to signal an error in

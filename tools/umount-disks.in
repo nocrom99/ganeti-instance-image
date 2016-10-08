@@ -6,7 +6,7 @@ INSTANCE_NAME="$1"
 if [ -z "$INSTANCE_NAME" ] ; then
     echo "Must provide a node name!"
     exit 1
-fi   
+fi
 
 info=($(gnt-instance list -o os,hypervisor,disk.count --no-headers --separator=' ' $INSTANCE_NAME))
 OS_VARIANT="${info[0]/*+/}"
@@ -27,9 +27,9 @@ target="/tmp/${INSTANCE_NAME}_root"
 root_dev=$(map_partition $filesystem_dev root)
 boot_dev=$(map_partition $filesystem_dev boot)
 
-if [ -n "${boot_dev}" ] ; then
-   umount $target/boot
-fi
+# if [ -n "${boot_dev}" ] ; then
+#    umount $target/boot
+# fi
 
 umount $target
 rmdir $target

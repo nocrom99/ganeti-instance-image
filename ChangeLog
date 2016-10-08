@@ -1,3 +1,19 @@
+2016-10-8 Matt Brown <matt@jcihosting.net>
+  * Forked from ganeti-instance-image
+  * Reworked:
+    * 1 or 2 partitions only, no /boot
+    * / always vda1
+    * swap, if any, vda2
+    * default no swap
+    * default ext4
+    * default ARCH x86_64
+    * renamed dumps as no longer have root/boot option
+    * default parted instead of sfdisk
+    * don't set up serial console in hooks/grub, assume already done
+    * update to grub2 (grub-install /dev/vda)
+    * change dump compression from zlib to lzo. larger files, but faster
+    * interface configration falls back to DNS lookups if config file for hostname is not found
+
 2015-06-02  Lance Albertson <lance@osuosl.org>
   * Released 0.7-beta1
   * Major features added:
@@ -30,7 +46,7 @@
     * #10473 - Package signing key not available
     * #10509 - Find grub/grub-setup paths correctly
     * #10923 - Fix resolv.conf for Ubuntu 12.04
-    * #11871 - Fix mkfs.xfs 
+    * #11871 - Fix mkfs.xfs
     * #11973 - Add parted support
     * #12435 - Add warning if swap size is larger than system disk size
     * #12441 - Bug in instance-image, overlay code

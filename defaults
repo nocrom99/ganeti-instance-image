@@ -6,7 +6,7 @@
 # CDINSTALL="no"
 
 # SWAP: Create a swap partition
-# SWAP=yes
+# SWAP=no
 
 # SWAP_SIZE: Manually set the size of the swap partition (in MB)
 # If left empty, it will set the size equal to the memory for the instance.
@@ -14,13 +14,13 @@
 # SWAP_SIZE=""
 
 # BOOT_SIZE: Set the size of the /boot partition (in MB)
-# If left empty, it will use the default setting of 100MB as the size of the
+# If left empty, it will use the default setting of 256MB as the size of the
 # /boot volume.
 # BOOT_SIZE=""
 
 # FILESYSTEM: Set which filesystem to format the disks as. Currently only
-# supports ext3 or ext4. Default is ext3.
-# FILESYSTEM="ext3"
+# supports ext3 or ext4. Default is ext4.
+# FILESYSTEM="ext4"
 
 # KERNEL_ARGS: Add additional kernel boot arguments to an instance. This only
 # works on instances booting a kernel from inside.
@@ -29,7 +29,7 @@
 # IMAGE_NAME: Name of the image to use
 # Generally you use the name of the image with the version of the OS included.
 # Examples include:
-#   centos-5.4 debian-4.0 fedora-12
+#   ubuntu-16.04 centos-7 debian-8 fedora-24
 # IMAGE_NAME=""
 
 # IMAGE_TYPE: Either qemu disk images, tarball, or dump based images.
@@ -56,7 +56,7 @@
 
 # ARCH: Define the ARCH of the image to use
 # Use either x86 or x86_64
-# ARCH=""
+ARCH="x86_64"
 
 # CUSTOMIZE_DIR: a directory containing scripts to customize the installation.
 # The scripts are executed using run-parts

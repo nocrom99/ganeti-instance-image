@@ -37,7 +37,7 @@ case "$IMAGE_TYPE" in
     IMG_EXT=".qcow2"
     ;;
   dump)
-    IMG_EXT="-root.dump"
+    IMG_EXT=".dump"
     ;;
 esac
 
@@ -87,6 +87,8 @@ if [ "$CDINSTALL" = "no" ] ; then
         log_error "SWAP_SIZE larger than system disk size: "
         log_error "  ${SWAP_SIZE}MB swap > ${DISK_SIZE}MB system disk"
         exit 1
+    else
+        ROOT_SIZE=`expr $DISK_SIZE - $SWAP_SIZE`
     fi
 
     if [ ! -f "$IMAGE_FILE" ] ; then
@@ -96,9 +98,9 @@ if [ "$CDINSTALL" = "no" ] ; then
 
     case "$IMAGE_TYPE" in
       tarball|dump)
-        # If the image is tarball based, then we need to manually create the
+        # If the image is tarball or dump based, then we need to manually create the
         # volumes, filesystems, etc
-        # Create 3 partitions, /boot, swap, & /
+        # Create 1 or 2 partitions, / & maybe swap
         format_disk0 $blockdev
         ;;
       qemu|raw|qcow2)

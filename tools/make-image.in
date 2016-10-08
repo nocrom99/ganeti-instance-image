@@ -76,8 +76,8 @@ done
 [ -z "$IMAGE_DIR" ]     && echo "Error: IMAGE_DIR not set" && exit 1
 [ -z "$TYPE" ]          && echo "Error: Image type not set" && exit 1
 [ -z "$INSTANCE_NAME" ] && echo "Error: INSTANCE_NAME not set" && exit 1
-[ -z "$INSTANCE_HV_kernel_path" ] && \
-    echo "Error: INSTANCE_HV_kernel_path not set" && exit 1
+# # [ -z "$INSTANCE_HV_kernel_path" ] && \
+# #     echo "Error: INSTANCE_HV_kernel_path not set" && exit 1
 [ -z "$IMAGE_NAME" ]    && echo "Error: IMAGE_NAME not set" && exit 1
 [ -z "$ARCH" ]          && echo "Error: ARCH not set" && exit 1
 [ -z "$OS_VARIANT" ]    && echo "Error: OS_VARIANT not set" && exit 1
@@ -113,13 +113,13 @@ case $TYPE in
         fi
         ;;
     dump)
-        if [ -n "$boot_dev" ] ; then
-            echo "Creating dump from $INSTANCE_NAME for boot at ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}-boot.dump"
-            $DUMP -0 -q -z9 -f ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}-boot.dump $boot_dev 2> /dev/null
-        fi
+#         if [ -n "$boot_dev" ] ; then
+#             echo "Creating dump from $INSTANCE_NAME for boot at ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}-boot.dump"
+#             $DUMP -0 -q -z9 -f ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}-boot.dump $boot_dev 2> /dev/null
+#         fi
 
-        echo "Creating dump from $INSTANCE_NAME for root at ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}-root.dump"
-        $DUMP -0 -q -z9 -f ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}-root.dump $root_dev
+        echo "Creating dump from $INSTANCE_NAME for root at ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}.dump"
+        $DUMP -0 -q -z9 -f ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}.dump $root_dev
         ;;
     qemu-img)
         echo "Creating qemu-img image from $INSTANCE_NAME to ${IMAGE_DIR}/${IMAGE_NAME}-${ARCH}.img"

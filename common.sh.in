@@ -171,25 +171,7 @@ format_disk0() {
 
 format_disk0_sfdisk() {
     local sfdisk_cmd="$SFDISK -uM -H 255 -S 63 --quiet --Linux --DOS $1"
-    if [  "${SWAP}" = "yes" -a -z "${KERNEL_PATH}" ] ; then
-        # Create three partitions:
-        # 1 - $BOOT_SIZE /boot, bootable
-        # 2 - Size of Memory, swap
-        # 3 - Rest
-        $sfdisk_cmd > /dev/null <<EOF
-,${BOOT_SIZE},L,*
-,${SWAP_SIZE},S
-,,L
-EOF
-    elif [  "${SWAP}" = "no" -a -z "${KERNEL_PATH}" ] ; then
-        # Create two partitions:
-        # 1 - $BOOT_SIZE /boot, bootable
-        # 2 - Rest
-        $sfdisk_cmd > /dev/null <<EOF
-,${BOOT_SIZE},L,*
-,,L
-EOF
-    elif [  "${SWAP}" = "yes" -a -n "${KERNEL_PATH}" ] ; then
+    if [  "${SWAP}" = "yes" ] ; then
         # Create two partitions:
         # 1 - Size of Memory, swap
         # 2 - Rest
@@ -197,8 +179,8 @@ EOF
 ,$SWAP_SIZE,S
 ,,L,*
 EOF
-    elif [  "${SWAP}" = "no" -a -n "${KERNEL_PATH}" ] ; then
-        # Create two partitions:
+    elif [  "${SWAP}" = "no" ] ; then
+        # Create one partition:
         # 1 - Whole
         $sfdisk_cmd > /dev/null <<EOF
 ,,L,*
@@ -208,38 +190,20 @@ EOF
 
 format_disk0_parted() {
     local parted_cmd="${PARTED} $1 --script --"
-    if [  "${SWAP}" = "yes" -a -z "${KERNEL_PATH}" ] ; then
-        # Create three partitions:
-        # 1 - $BOOT_SIZE /boot, bootable
-        # 2 - Size of Memory, swap
-        # 3 - Rest
-        $parted_cmd mklabel msdos
-        $parted_cmd mkpart primary 0% ${BOOT_SIZE}M
-        $parted_cmd mkpart primary ${BOOT_SIZE}M $((${BOOT_SIZE}+$SWAP_SIZE))M
-        $parted_cmd mkpart primary $((${BOOT_SIZE}+$SWAP_SIZE))M 100%
-        $parted_cmd set 1 boot on
-
-    elif [  "${SWAP}" = "no" -a -z "${KERNEL_PATH}" ] ; then
+    if [  "${SWAP}" = "yes" ] ; then
         # Create two partitions:
-        # 1 - $BOOT_SIZE /boot, bootable
-        # 2 - Rest
+        # 1 - root (all except swap)
+        # 2 - swap
         $parted_cmd mklabel msdos
-        $parted_cmd mkpart primary 0% ${BOOT_SIZE}M
-        $parted_cmd mkpart primary ${BOOT_SIZE}M 100%
-        $parted_cmd set 1 boot on
-    elif [  "${SWAP}" = "yes" -a -n "${KERNEL_PATH}" ] ; then
-        # Create two partitions:
-        # 1 - Size of Memory, swap
-        # 2 - Rest
-        $parted_cmd mklabel msdos
-        $parted_cmd mkpart primary 0% ${SWAP_SIZE}M
-        $parted_cmd mkpart primary ${SWAP_SIZE}M 100%
-    elif [  "${SWAP}" = "no" -a -n "${KERNEL_PATH}" ] ; then
-        # Create two partitions:
+        $parted_cmd mkpart primary 0% ${ROOT_SIZE}MiB
+        $parted_cmd mkpart primary ${ROOT_SIZE}MiB 100%
+    elif [  "${SWAP}" = "no" ] ; then
+        # Create one partition:
         # 1 - Whole
         $parted_cmd mklabel msdos
         $parted_cmd mkpart primary 0% 100%
     fi
+    $parted_cmd set 1 boot on
 }
 
 mkfs_disk0() {
@@ -302,17 +266,10 @@ map_disk0() {
 map_partition() {
     filesystem_dev="$1"
     partition="$2"
-    if [ "${SWAP}" = "yes" -a -z "${KERNEL_PATH}" ] ; then
-        boot_dev="${filesystem_dev}-1"
+    if [ "${SWAP}" = "yes" ] ; then
+        root_dev="${filesystem_dev}-1"
         swap_dev="${filesystem_dev}-2"
-        root_dev="${filesystem_dev}-3"
-    elif [ "${SWAP}" = "no" -a -z "${KERNEL_PATH}" ] ; then
-        boot_dev="${filesystem_dev}-1"
-        root_dev="${filesystem_dev}-2"
-    elif [ "${SWAP}" = "yes" -a -n "${KERNEL_PATH}" ] ; then
-        swap_dev="${filesystem_dev}-1"
-        root_dev="${filesystem_dev}-2"
-    elif [ "${SWAP}" = "no" -a -n "${KERNEL_PATH}" ] ; then
+    elif [ "${SWAP}" = "no" ] ; then
         root_dev="${filesystem_dev}-1"
     fi
     echo "$(eval "echo \${$(echo ${partition}_dev)"})"
@@ -329,19 +286,16 @@ setup_fstab() {
 # /etc/fstab: static file system information.
 #
 # <file system>   <mount point>   <type>  <options>       <dump>  <pass>
-UUID=$root_uuid   /               $fs     defaults        0       1
-proc              /proc           proc    defaults        0       0
 EOF
-
-if [ -n "$boot_dev" -a -n "$boot_uuid" ] ; then
-    cat >> $target/etc/fstab <<EOF
-UUID=$boot_uuid   /boot           $fs     defaults        1       2
-EOF
-fi
 
 if [ -n "$swap_dev" -a -n "$swap_uuid" ] ; then
     cat >> $target/etc/fstab <<EOF
-UUID=$swap_uuid   swap            swap    defaults        0       0
+/dev/vda1   /               $fs     defaults        0       1
+/dev/vda2   swap            swap    defaults        0       0
+EOF
+else
+    cat >> $target/etc/fstab <<EOF
+/dev/vda1   /               $fs     defaults        0       1
 EOF
 fi
 
@@ -426,16 +380,16 @@ else
 fi
 
 : ${CDINSTALL:="no"}
-: ${SWAP:="yes"}
+: ${SWAP:="no"}
 : ${SWAP_SIZE:="${INSTANCE_MEM}"}
-: ${BOOT_SIZE:="100"}
-: ${FILESYSTEM:="ext3"}
+: ${BOOT_SIZE:="256"}
+: ${FILESYSTEM:="ext4"}
 : ${KERNEL_ARGS=""}
 : ${OVERLAY=""}
 : ${IMAGE_NAME:=""}
 : ${IMAGE_TYPE:="dump"}
 : ${NOMOUNT:="no"}
-: ${ARCH:=""}
+: ${ARCH:="x86_64"}
 : ${CUSTOMIZE_DIR:="@sysconfdir@/ganeti/instance-linux/hooks"}
 : ${VARIANTS_DIR:="@sysconfdir@/ganeti/instance-linux/variants"}
 : ${NETWORKS_DIR:="@sysconfdir@/ganeti/instance-linux/networks"}
@@ -443,7 +397,7 @@ fi
 : ${EXPORT_DIR:="/tmp"}
 : ${IMAGE_DIR:="@localstatedir@/cache/ganeti-instance-linux"}
 : ${IMAGE_DEBUG:="no"}
-: ${FDISK:="sfdisk"}
+: ${FDISK:="parted"}
 : ${CACHE_DIR:="@localstatedir@/cache/ganeti-instance-linux"}
 : ${IMAGE_URL:=""}
 : ${IMAGE_VERIFY:="yes"}
